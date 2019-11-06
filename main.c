@@ -35,7 +35,7 @@ enum ASCIIChars {BACKSPACE = 8, ESCAPE = 27, SPACE = 32, ASTERISK = 42, MINUS_SI
 enum TempUnits {CEL, FARH, KEL};
 
 typedef struct consoleInformation {
-    char sign;
+    char sign; // Can be 45 or 32 TODO Change to enum
     int currentRow;
     int currentCol;
     int currentColour; //Hex value
@@ -109,26 +109,12 @@ int main() {
                     }
                 }
             case ARROW_LEFT:
-                if(consoleInfo.currentCol == 10) {
-                    consoleInfo.currentCol = 20;
-                }
-                else if(consoleInfo.currentCol == 15) {
-                    consoleInfo.currentCol = 10;
-                }
-                else if(consoleInfo.currentCol == 20) {
-                    consoleInfo.currentCol = 15;
-                }
+                if(consoleInfo.currentCol == 10) consoleInfo.currentCol = 20;
+                else consoleInfo.currentCol -= 5;
                 break;
             case ARROW_RIGHT:
-                if(consoleInfo.currentCol == 10) {
-                    consoleInfo.currentCol = 15;
-                }
-                else if(consoleInfo.currentCol == 15) {
-                    consoleInfo.currentCol = 20;
-                }
-                else if(consoleInfo.currentCol == 20) {
-                    consoleInfo.currentCol = 10;
-                }
+                if(consoleInfo.currentCol == 20) consoleInfo.currentCol = 10;
+                else consoleInfo.currentCol += 5;
                 break;
             case SPACE:
                 if(consoleInfo.currentRow == 5) {
