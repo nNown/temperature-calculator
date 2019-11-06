@@ -31,9 +31,8 @@ void renderTemplate(char template[TEMPLATE_HEIGHT][TEMPLATE_WIDTH], int row, int
 void initializeUi(char template[TEMPLATE_HEIGHT][TEMPLATE_WIDTH], char ui[TEMPLATE_HEIGHT][TEMPLATE_WIDTH]);
 void hideCursor();
 
-enum ASCIIChars {BACKSPACE = 8, ESCAPE = 27, SPACE = 32, ASTERISK = 42, MINUS_SIGN = 45, DOT = 46, ZERO = 48, ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, ARROW_UP = 72, ARROW_LEFT = 75, ARROW_RIGHT = 77, ARROW_DOWN = 80, RESTART = 114};
+enum ASCIIChars {BACKSPACE = 8, ESCAPE = 27, SPACE = 32, ASTERISK = 42, MINUS_SIGN = 45, DOT = 46, ZERO = 48, NINE = 57, ARROW_UP = 72, ARROW_LEFT = 75, ARROW_RIGHT = 77, ARROW_DOWN = 80, RESTART = 114};
 enum TempUnits {CEL, FARH, KEL};
-enum Buttons {CEL_BTN = 10, FARH_BTN = 15, KEL_BTN = 20};
 
 typedef struct consoleInformation {
     char sign;
@@ -41,7 +40,6 @@ typedef struct consoleInformation {
     int currentCol;
     int currentColour; //Hex value
     enum TempUnits currentTempUnit;
-    enum Buttons currentButton;
     float currentTempValue;
 } consoleInformation;
 
@@ -56,7 +54,7 @@ float getNumberFromDisplay(char *pointer[]);
 void printNumberInDisplay(char *pointer[], float number);
 
 void updateTemperaturUnitInDisplay(char *pointer[], int currentTempUnit);
-void convertTemperatureToAnotherUnit(char *pointer[], char *displayPointer[], enum TempUnits *currentTempUnit, enum Buttons nextTempUnit, float *currentTempValue);
+void convertTemperatureToAnotherUnit(char *pointer[], char *displayPointer[], enum TempUnits *currentTempUnit, int nextTempUnit, float *currentTempValue);
 
 int main() {
     consoleInformation consoleInfo = {32, 5, 10, 0x0070, CEL, 0};
@@ -113,34 +111,28 @@ int main() {
             case ARROW_LEFT:
                 if(consoleInfo.currentCol == 10) {
                     consoleInfo.currentCol = 20;
-                    consoleInfo.currentButton = KEL_BTN;
                 }
                 else if(consoleInfo.currentCol == 15) {
                     consoleInfo.currentCol = 10;
-                    consoleInfo.currentButton = CEL_BTN;
                 }
                 else if(consoleInfo.currentCol == 20) {
                     consoleInfo.currentCol = 15;
-                    consoleInfo.currentButton = FARH_BTN;
                 }
                 break;
             case ARROW_RIGHT:
                 if(consoleInfo.currentCol == 10) {
                     consoleInfo.currentCol = 15;
-                    consoleInfo.currentButton = FARH_BTN;
                 }
                 else if(consoleInfo.currentCol == 15) {
                     consoleInfo.currentCol = 20;
-                    consoleInfo.currentButton = KEL_BTN;
                 }
                 else if(consoleInfo.currentCol == 20) {
                     consoleInfo.currentCol = 10;
-                    consoleInfo.currentButton = CEL_BTN;
                 }
                 break;
             case SPACE:
                 if(consoleInfo.currentRow == 5) {
-                    convertTemperatureToAnotherUnit(tempUnitPointer, displayPointer, &consoleInfo.currentTempUnit, consoleInfo.currentButton, &consoleInfo.currentTempValue);
+                    convertTemperatureToAnotherUnit(tempUnitPointer, displayPointer, &consoleInfo.currentTempUnit, consoleInfo.currentCol, &consoleInfo.currentTempValue);
                     if(*displayPointer[TEMPLATE_WIDTH - 5] != 32) {
                         if(consoleInfo.currentTempValue < 0) {
                             consoleInfo.sign = 45;
@@ -155,6 +147,7 @@ int main() {
         setSign(displayPointer, consoleInfo.sign);
 
         consoleInfo.currentTempValue = getNumberFromDisplay(displayPointer);
+
         system("cls");
         
         updateTemperaturUnitInDisplay(tempUnitPointer, consoleInfo.currentTempUnit);
@@ -266,12 +259,9 @@ void setSign(char *pointer[], char sign) {
 }
 
 float getNumberFromDisplay(char *pointer[]) {
-    char sign = *pointer[0];
-    char number[TEMPLATE_WIDTH - 4];
-
-    int i, j;
-    for(i = 0; i < TEMPLATE_WIDTH - 4; i++) number[i] = 0;
+    char number[TEMPLATE_WIDTH - 4] = {0};
     
+    int i, j;
     for(i = 0; i < TEMPLATE_WIDTH - 4; i++) {
         if(*pointer[i] != 32) {
             for(j = 0; j < TEMPLATE_WIDTH - 4; j++) {
@@ -282,7 +272,6 @@ float getNumberFromDisplay(char *pointer[]) {
             }
         }
     }
-
     return strtof(number, NULL);
 }
 
@@ -308,7 +297,11 @@ void printNumberInDisplay(char *pointer[], float number) {
             break;
         }
         
-        *pointer[j] = numberAsAString[i];
+        if((numberAsAString[i] >= ZERO && numberAsAString[i] <= NINE) || numberAsAString[i] == DOT) {
+           *pointer[j] = numberAsAString[i]; 
+        } else {
+            *pointer[j] = 32;
+        }
     }
 }
 
@@ -316,26 +309,26 @@ void updateTemperaturUnitInDisplay(char *pointer[], int currentTempUnit) {
     *pointer[currentTempUnit] = ASTERISK;
 }
 
-void convertTemperatureToAnotherUnit(char *pointer[], char *displayPointer[], enum TempUnits *currentTempUnit, enum Buttons nextTempUnit, float *currentTempValue) {
+void convertTemperatureToAnotherUnit(char *pointer[], char *displayPointer[], enum TempUnits *currentTempUnit, int nextTempUnit, float *currentTempValue) {
     if(*displayPointer[TEMPLATE_WIDTH - 5] != 32) {
-        switch(*currentTempUnit) {
-            case CEL: 
-                if(nextTempUnit == FARH_BTN) *currentTempValue = CelToFarh(*currentTempValue);
-                else if(nextTempUnit == KEL_BTN) *currentTempValue = CelToKel(*currentTempValue);
-            case FARH:
-                if(nextTempUnit == CEL_BTN) *currentTempValue = FarhToCel(*currentTempValue);
-                else if(nextTempUnit == KEL_BTN) *currentTempValue = FarhToKel(*currentTempValue);
-            case KEL:
-                if(nextTempUnit == CEL_BTN) *currentTempValue = KelToCel(*currentTempValue);
-                else if(nextTempUnit == FARH_BTN) *currentTempValue = KelToFarh(*currentTempValue);
-        }
+        if(*currentTempUnit == CEL && nextTempUnit == 15) 
+            *currentTempValue = CelToFarh(*currentTempValue);
+        else if(*currentTempUnit == CEL && nextTempUnit == 20)
+            *currentTempValue = CelToKel(*currentTempValue);
+        else if(*currentTempUnit == FARH && nextTempUnit == 10)
+            *currentTempValue = FarhToCel(*currentTempValue);
+        else if(*currentTempUnit == FARH && nextTempUnit == 20)
+            *currentTempValue = FarhToKel(*currentTempValue);
+        else if(*currentTempUnit == KEL && nextTempUnit == 10)
+            *currentTempValue = KelToCel(*currentTempValue);
+        else if(*currentTempUnit == KEL && nextTempUnit == 15)
+            *currentTempValue = KelToFarh(*currentTempValue);
     }
 
-    *pointer[*currentTempUnit] = SPACE;
-
-    if(nextTempUnit == CEL_BTN) *currentTempUnit = CEL;
-    else if(nextTempUnit == FARH_BTN) *currentTempUnit = FARH;
-    else if(nextTempUnit == KEL_BTN) *currentTempUnit = KEL;
+    *pointer[*currentTempUnit] = 32;
+    if(nextTempUnit == 10) *currentTempUnit = CEL;
+    else if(nextTempUnit == 15) *currentTempUnit = FARH;
+    else if(nextTempUnit == 20) *currentTempUnit = KEL;
 
     if(*currentTempUnit == CEL && *currentTempValue < -273.15) *currentTempValue = -273.15;
     else if(*currentTempUnit == FARH && *currentTempValue < -459.67) *currentTempValue = -459.67;
