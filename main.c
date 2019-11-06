@@ -311,18 +311,20 @@ void updateTemperaturUnitInDisplay(char *pointer[], int currentTempUnit) {
 
 void convertTemperatureToAnotherUnit(char *pointer[], char *displayPointer[], enum TempUnits *currentTempUnit, int nextTempUnit, float *currentTempValue) {
     if(*displayPointer[TEMPLATE_WIDTH - 5] != 32) {
-        if(*currentTempUnit == CEL && nextTempUnit == 15) 
-            *currentTempValue = CelToFarh(*currentTempValue);
-        else if(*currentTempUnit == CEL && nextTempUnit == 20)
-            *currentTempValue = CelToKel(*currentTempValue);
-        else if(*currentTempUnit == FARH && nextTempUnit == 10)
-            *currentTempValue = FarhToCel(*currentTempValue);
-        else if(*currentTempUnit == FARH && nextTempUnit == 20)
-            *currentTempValue = FarhToKel(*currentTempValue);
-        else if(*currentTempUnit == KEL && nextTempUnit == 10)
-            *currentTempValue = KelToCel(*currentTempValue);
-        else if(*currentTempUnit == KEL && nextTempUnit == 15)
-            *currentTempValue = KelToFarh(*currentTempValue);
+        switch(*currentTempUnit) {
+            case CEL:
+                if(nextTempUnit == 15) *currentTempValue = CelToFarh(*currentTempValue);
+                else if(nextTempUnit == 20) *currentTempValue = CelToKel(*currentTempValue);
+                break;
+            case FARH:
+                if(nextTempUnit == 10) *currentTempValue = FarhToCel(*currentTempValue);
+                else if(nextTempUnit == 20) *currentTempValue = FarhToKel(*currentTempValue);
+                break;
+            case KEL:
+                if(nextTempUnit == 10) *currentTempValue = KelToCel(*currentTempValue);
+                else if(nextTempUnit == 15) *currentTempValue = KelToFarh(*currentTempValue);
+                break;
+        }
     }
 
     *pointer[*currentTempUnit] = 32;
