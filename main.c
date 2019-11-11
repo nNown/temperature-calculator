@@ -115,6 +115,7 @@ int main() {
     renderTemplate(menuUi, tempHistory, consoleInfo.currentRow, consoleInfo.Buttons, consoleInfo.currentColour, appendedElements);
 
     while(currentPressedButton != ESCAPE) {
+        hideCursor();
         currentPressedButton = _getch();
 
         if(currentPressedButton >= ZERO && currentPressedButton <= NINE) {
@@ -163,6 +164,8 @@ int main() {
                 appendedElements = 0;
                 break;
             case ARROW_UP:
+                if(appendedElements == 0) break;
+                
                 if(consoleInfo.currentRow == 5) {
                     consoleInfo.currentRow = appendedElements + 5;
                     consoleInfo.Buttons = EDIT_BTN;
@@ -174,6 +177,8 @@ int main() {
                 }
                 break;
             case ARROW_DOWN:
+                if(appendedElements == 0) break;
+                
                 if(consoleInfo.currentRow == appendedElements + 5) {
                     consoleInfo.currentRow = 5;
                     consoleInfo.Buttons = CEL_BTN;
@@ -297,7 +302,7 @@ void renderTemplate(char template[TEMPLATE_HEIGHT][TEMPLATE_WIDTH], char history
 
     int i, j;
     for(i = 0; i < TEMPLATE_HEIGHT; i++) {
-        printf("\t\t\t\t");
+        printf("\t\t\t");
         for(j = 0; j < TEMPLATE_WIDTH; j++) {
             if(i == row && j == col) {
                 SetConsoleTextAttribute(hConsole, colour);
