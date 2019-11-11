@@ -3,11 +3,12 @@
 #include <stdbool.h>
 #include <windows.h>
 #include <conio.h>
+#include <time.h>
 
 #define TEMPLATE_HEIGHT 6
 #define TEMPLATE_WIDTH 32
 #define HISTORY_HEIGHT 1
-#define HISTORY_WIDTH 74
+#define HISTORY_WIDTH 76
 #define HISTORY_ELEMENTS 1000
 
 float CelToFarh(float C);
@@ -30,13 +31,13 @@ char menuUi[TEMPLATE_HEIGHT][TEMPLATE_WIDTH];
 char *displayPointer[TEMPLATE_WIDTH - 4];
 char *tempUnitPointer[3];
 
-void renderTemplate(char template[TEMPLATE_HEIGHT][TEMPLATE_WIDTH], int row, int col, int colour);
+void renderTemplate(char template[TEMPLATE_HEIGHT][TEMPLATE_WIDTH], char history[HISTORY_ELEMENTS][HISTORY_WIDTH], int row, int col, int colour, int appendedElements);
 void initializeUi(char template[TEMPLATE_HEIGHT][TEMPLATE_WIDTH], char ui[TEMPLATE_HEIGHT][TEMPLATE_WIDTH]);
 void hideCursor();
 
-enum ASCIIChars {BACKSPACE = 8, ESCAPE = 27, SPACE = 32, ASTERISK = 42, MINUS_SIGN = 45, DOT = 46, ZERO = 48, NINE = 57, ARROW_UP = 72, ARROW_LEFT = 75, ARROW_RIGHT = 77, ARROW_DOWN = 80, RESTART = 114};
+enum ASCIIChars {BACKSPACE = 8, TAB = 9, ESCAPE = 27, SPACE = 32, ASTERISK = 42, MINUS_SIGN = 45, DOT = 46, ZERO = 48, NINE = 57, ARROW_UP = 72, ARROW_LEFT = 75, ARROW_RIGHT = 77, ARROW_DOWN = 80, RESTART = 114};
 enum TempUnits {CEL, FARH, KEL};
-enum Buttons {CEL_BTN = 10, FARH_BTN = 15, KEL_BTN = 20};
+enum Buttons {CEL_BTN = 10, FARH_BTN = 15, KEL_BTN = 20, EDIT_INPUT = 27, EDIT_BTN = 66, DELETE_BTN = 70};
 
 typedef struct consoleInformation {
     char displaySign; // Can be 45 or 32 TODO Change to enum
@@ -61,7 +62,7 @@ void updateTemperaturUnitInDisplay(char *pointer[], int currentTempUnit);
 void convertTemperatureToAnotherUnit(char *pointer[], char *displayPointer[], enum TempUnits *currentTempUnit, enum Buttons nextTempUnit, float *currentTempValue, char *historyInputUnit, char *historyOutputUnit);
 
 char historyUiTemplate[HISTORY_HEIGHT][HISTORY_WIDTH] = {
-    "                               |                                | E / D |"
+    "                               |                                | E / D |\n\r"
 };
 
 // 0 - 28 Input 33 - 61 Output 67 E 71 D
@@ -72,15 +73,18 @@ char tempHistory[HISTORY_ELEMENTS][HISTORY_WIDTH];
 
 char *inputTempPointer[TEMPLATE_WIDTH - 4];
 char *inputTempUnit;
-char inputSign = 32;
+char inputSign = SPACE;
 char *outputTempPointer[TEMPLATE_WIDTH - 4];
 char *outputTempUnit;
-char outputSign = 32;
+char outputSign = SPACE;
+
+int editedRow = -1;
 
 void initializeAppendableRow(char template[HISTORY_HEIGHT][HISTORY_WIDTH], char row[HISTORY_HEIGHT][HISTORY_WIDTH]);
+void deleteElementFromHistory(char history[HISTORY_ELEMENTS][HISTORY_WIDTH], int row);
 
 int main() {
-    consoleInformation consoleInfo = {32, 5, CEL_BTN, 0x0070, CEL, 0};
+    consoleInformation consoleInfo = {SPACE, 5, CEL_BTN, 0x0070, CEL, 0};
     enum ASCIIChars currentPressedButton;
     int i, j;
 
@@ -108,7 +112,7 @@ int main() {
     outputTempUnit = &historyRowToAppend[0][62];
 
     hideCursor();
-    renderTemplate(menuUi, consoleInfo.currentRow, consoleInfo.Buttons, consoleInfo.currentColour);
+    renderTemplate(menuUi, tempHistory, consoleInfo.currentRow, consoleInfo.Buttons, consoleInfo.currentColour, appendedElements);
 
     while(currentPressedButton != ESCAPE) {
         currentPressedButton = _getch();
@@ -136,7 +140,7 @@ int main() {
                 break;
             case DOT:
                 if(setFloatingPoint(displayPointer)) {
-                    if(*displayPointer[TEMPLATE_WIDTH - 5] == 32) {
+                    if(*displayPointer[TEMPLATE_WIDTH - 5] == SPACE) {
                         *displayPointer[TEMPLATE_WIDTH - 6] = ZERO;
                         addNumberToDisplay(displayPointer, DOT);
                         break;
@@ -145,32 +149,71 @@ int main() {
                         break;
                     }
                 }
+            case TAB:
+                srand(time(NULL));
+                float randomNumber = rand() % 1000;
+                printNumberInDisplay(displayPointer, randomNumber);
+                break;
+            case ARROW_UP:
+                if(consoleInfo.currentRow == 5) {
+                    consoleInfo.currentRow = appendedElements + 5;
+                    consoleInfo.Buttons = EDIT_BTN;
+                } else if(consoleInfo.currentRow == 6) {
+                    consoleInfo.currentRow = 5;
+                    consoleInfo.Buttons = CEL_BTN;
+                } else {
+                    consoleInfo.currentRow--;
+                }
+                break;
+            case ARROW_DOWN:
+                if(consoleInfo.currentRow == appendedElements + 5) {
+                    consoleInfo.currentRow = 5;
+                    consoleInfo.Buttons = CEL_BTN;
+                } else if(consoleInfo.currentRow == 5) {
+                    consoleInfo.currentRow = 6;
+                    consoleInfo.Buttons = EDIT_BTN;
+                } else {
+                    consoleInfo.currentRow++;
+                }
+                break;
             case ARROW_LEFT:
-                if(consoleInfo.Buttons == CEL_BTN) consoleInfo.Buttons = KEL_BTN;
-                else consoleInfo.Buttons -= 5;
+                if(consoleInfo.currentRow == 5) {
+                    if(consoleInfo.Buttons == CEL_BTN) consoleInfo.Buttons = KEL_BTN;
+                    else consoleInfo.Buttons -= 5;
+                } else {
+                    if(consoleInfo.Buttons == DELETE_BTN) consoleInfo.Buttons = EDIT_BTN;
+                    else if(consoleInfo.Buttons == EDIT_BTN) consoleInfo.Buttons = EDIT_INPUT;
+                    else consoleInfo.Buttons = DELETE_BTN;
+                }
                 break;
             case ARROW_RIGHT:
-                if(consoleInfo.Buttons == KEL_BTN) consoleInfo.Buttons = CEL_BTN;
-                else consoleInfo.Buttons += 5;
+                if(consoleInfo.currentRow == 5) {
+                    if(consoleInfo.Buttons == KEL_BTN) consoleInfo.Buttons = CEL_BTN;
+                    else consoleInfo.Buttons += 5;
+                } else {
+                    if(consoleInfo.Buttons == EDIT_INPUT) consoleInfo.Buttons = EDIT_BTN;
+                    else if(consoleInfo.Buttons == EDIT_BTN) consoleInfo.Buttons = DELETE_BTN;
+                    else consoleInfo.Buttons = EDIT_BTN;
+                }
                 break;
             case SPACE:
                 if(consoleInfo.currentRow == 5) {
                     initializeAppendableRow(historyUiTemplate, historyRowToAppend);
 
-                    if(consoleInfo.currentTempValue < 0) inputSign = 45;
-                    else inputSign = 32;
+                    if(consoleInfo.currentTempValue < 0) inputSign = MINUS_SIGN;
+                    else inputSign = SPACE;
                     printNumberInDisplay(inputTempPointer, consoleInfo.currentTempValue);
                     setSign(inputTempPointer, inputSign);
 
                     convertTemperatureToAnotherUnit(tempUnitPointer, displayPointer, &consoleInfo.currentTempUnit, consoleInfo.Buttons, &consoleInfo.currentTempValue, inputTempUnit, outputTempUnit);
                     
-                    if(*displayPointer[TEMPLATE_WIDTH - 5] != 32) {
+                    if(*displayPointer[TEMPLATE_WIDTH - 5] != SPACE) {
                         if(consoleInfo.currentTempValue < 0) {
-                            consoleInfo.displaySign = 45;
-                            outputSign = 45;
+                            consoleInfo.displaySign = MINUS_SIGN;
+                            outputSign = MINUS_SIGN;
                         } else {
-                            consoleInfo.displaySign = 32;
-                            outputSign = 32;
+                            consoleInfo.displaySign = SPACE;
+                            outputSign = SPACE;
                         }
 
                         printNumberInDisplay(displayPointer, consoleInfo.currentTempValue);
@@ -178,9 +221,26 @@ int main() {
                         printNumberInDisplay(outputTempPointer, consoleInfo.currentTempValue);
                         setSign(outputTempPointer, outputSign);
 
-                        for(i = appendedElements, j = 0; j < HISTORY_WIDTH; j++) tempHistory[i][j] = historyRowToAppend[0][j];
-                        appendedElements++;
+                        if(editedRow != -1) {
+                            for(i = editedRow - 1, j = 0; j < HISTORY_WIDTH; j++) tempHistory[i][j] = historyRowToAppend[0][j];
+                            editedRow = -1;
+                        } else {
+                            for(i = appendedElements, j = 0; j < HISTORY_WIDTH; j++) tempHistory[i][j] = historyRowToAppend[0][j];
+                            appendedElements++;
+                        }
                     }
+                } else {
+                    if(consoleInfo.Buttons == EDIT_BTN) {
+                        editedRow = consoleInfo.currentRow - 5;
+                        consoleInfo.Buttons = CEL_BTN;
+                        consoleInfo.currentRow = 5;
+                    }
+                    else if(consoleInfo.Buttons == DELETE_BTN) {
+                        editedRow = consoleInfo.currentRow - 5;
+                        deleteElementFromHistory(tempHistory, editedRow);
+                        editedRow = -1;
+                        appendedElements--;
+                    };
                 }
                 break;
         }
@@ -190,14 +250,7 @@ int main() {
         consoleInfo.currentTempValue = getNumberFromDisplay(displayPointer);
         
         updateTemperaturUnitInDisplay(tempUnitPointer, consoleInfo.currentTempUnit);
-        renderTemplate(menuUi, consoleInfo.currentRow, consoleInfo.Buttons, consoleInfo.currentColour);
-
-        for(i = 0; i < appendedElements; i++) {
-            for(j = 0; j < HISTORY_WIDTH; j++) {
-                printf("%c", tempHistory[i][j]);
-            }
-            printf("\n\r");
-        }   
+        renderTemplate(menuUi, tempHistory, consoleInfo.currentRow, consoleInfo.Buttons, consoleInfo.currentColour, appendedElements);
     }
 
     return 0;
@@ -227,7 +280,7 @@ float KelToFarh(float K) {
     return K * 9.0/5.0 - 459.67;
 }
 
-void renderTemplate(char template[TEMPLATE_HEIGHT][TEMPLATE_WIDTH], int row, int col, int colour) {
+void renderTemplate(char template[TEMPLATE_HEIGHT][TEMPLATE_WIDTH], char history[HISTORY_ELEMENTS][HISTORY_WIDTH], int row, int col, int colour, int appendedElements) {
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     CONSOLE_SCREEN_BUFFER_INFO consoleInfo;
     WORD saved_attributes;
@@ -245,6 +298,20 @@ void renderTemplate(char template[TEMPLATE_HEIGHT][TEMPLATE_WIDTH], int row, int
                 continue;
             }
             putchar(template[i][j]);
+        }
+    }
+
+    putchar(SPACE);
+
+    for(i = 0; i < appendedElements; i++) {
+        for(j = 0; j < HISTORY_WIDTH; j++) {
+            if(i == row - 6 && j == col) {
+                SetConsoleTextAttribute(hConsole, colour);
+                putchar(history[i][j]);
+                SetConsoleTextAttribute(hConsole, saved_attributes);
+                continue;
+            }
+            putchar(history[i][j]);
         }
     }
 }
@@ -267,14 +334,14 @@ void hideCursor() {
 }
 
 void addNumberToDisplay(char *pointer[], char number) {
-    if(*pointer[1] != 32) return;
+    if(*pointer[1] != SPACE) return;
 
     int i;
     if(checkIfDisplayIsEmpty(pointer)) {
         *pointer[TEMPLATE_WIDTH - 5] = number;
     } else {
         for(i = 1; i < TEMPLATE_WIDTH - 4; i++) {
-            if(*pointer[i] != 32) {
+            if(*pointer[i] != SPACE) {
                 *pointer[i - 1] = *pointer[i];
             }
         }
@@ -283,13 +350,13 @@ void addNumberToDisplay(char *pointer[], char number) {
 }
 
 void deleteNumberFromDisplay(char *pointer[]) {
-    if(*pointer[TEMPLATE_WIDTH - 5] == 32) return;
+    if(*pointer[TEMPLATE_WIDTH - 5] == SPACE) return;
 
     int i;
     for(i = TEMPLATE_WIDTH - 6; i > 0; i--) {
         *pointer[i + 1] = *pointer[i];
     }
-    *pointer[1] = 32;
+    *pointer[1] = SPACE;
 }
 
 bool setFloatingPoint(char *pointer[]) {
@@ -301,7 +368,7 @@ bool setFloatingPoint(char *pointer[]) {
 }
 
 bool checkIfDisplayIsEmpty(char *pointer[]) {
-    return *pointer[TEMPLATE_WIDTH - 5] == 32;
+    return *pointer[TEMPLATE_WIDTH - 5] == SPACE;
 }
 
 void setSign(char *pointer[], char displaySign) {
@@ -314,11 +381,11 @@ float getNumberFromDisplay(char *pointer[]) {
     int i, j;
 
     for(i = 1; i < TEMPLATE_WIDTH - 5; i++) {
-        if(*pointer[i] != 32 && *pointer[i + 1] == 32) *pointer[i] = 32;
+        if(*pointer[i] != SPACE && *pointer[i + 1] == SPACE) *pointer[i] = SPACE;
     }
 
     for(i = 0; i < TEMPLATE_WIDTH - 4; i++) {
-        if(*pointer[i] != 32) {
+        if(*pointer[i] != SPACE) {
             for(j = 0; j < TEMPLATE_WIDTH - 4; j++) {
                 if(number[j] == 0) {
                     number[j] = *pointer[i];
@@ -336,8 +403,8 @@ void printNumberInDisplay(char *pointer[], float number) {
     int i, j;
 
     for(i = 0; i < TEMPLATE_WIDTH - 4; i++) {
-        numberAsAString[i] = 32;
-        *pointer[i] = 32;
+        numberAsAString[i] = SPACE;
+        *pointer[i] = SPACE;
     }
 
     sprintf(numberAsAString, "%f", number);
@@ -356,8 +423,12 @@ void printNumberInDisplay(char *pointer[], float number) {
         if((numberAsAString[i] >= ZERO && numberAsAString[i] <= NINE) || numberAsAString[i] == DOT) {
            *pointer[j] = numberAsAString[i]; 
         } else {
-            *pointer[j] = 32;
+            *pointer[j] = SPACE;
         }
+    }
+
+    for(i = 1; i < TEMPLATE_WIDTH - 5; i++) {
+        if(*pointer[i] != SPACE && *pointer[i + 1] == SPACE) *pointer[i] = SPACE;
     }
 }
 
@@ -386,7 +457,7 @@ void convertTemperatureToAnotherUnit(char *pointer[], char *displayPointer[], en
         }
     }
 
-    *pointer[*currentTempUnit] = 32;
+    *pointer[*currentTempUnit] = SPACE;
     if(nextTempUnit == CEL_BTN) {
         *currentTempUnit = CEL;
         *historyOutputUnit = 'C';
@@ -410,6 +481,15 @@ void initializeAppendableRow(char template[HISTORY_HEIGHT][HISTORY_WIDTH], char 
     for(i = 0; i < HISTORY_HEIGHT; i++) {
         for(j = 0; j < HISTORY_WIDTH; j++) {
             row[i][j] = template[i][j];
+        }
+    }
+}
+
+void deleteElementFromHistory(char history[HISTORY_ELEMENTS][HISTORY_WIDTH], int row) {
+    int i, j;
+    for(i = row - 1; i < appendedElements - 1; i++) {
+        for(j = 0; j < HISTORY_WIDTH; j++) {
+            history[i][j] = history[i + 1][j];
         }
     }
 }
