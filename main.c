@@ -35,7 +35,7 @@ void renderTemplate(char template[TEMPLATE_HEIGHT][TEMPLATE_WIDTH], char history
 void initializeUi(char template[TEMPLATE_HEIGHT][TEMPLATE_WIDTH], char ui[TEMPLATE_HEIGHT][TEMPLATE_WIDTH]);
 void hideCursor();
 
-enum ASCIIChars {BACKSPACE = 8, TAB = 9, ESCAPE = 27, SPACE = 32, ASTERISK = 42, MINUS_SIGN = 45, DOT = 46, ZERO = 48, NINE = 57, ARROW_UP = 72, ARROW_LEFT = 75, ARROW_RIGHT = 77, ARROW_DOWN = 80, RESTART = 114};
+enum ASCIIChars {BACKSPACE = 8, TAB = 9, ESCAPE = 27, SPACE = 32, ASTERISK = 42, MINUS_SIGN = 45, DOT = 46, ZERO = 48, NINE = 57, ARROW_UP = 72, ARROW_LEFT = 75, ARROW_RIGHT = 77, ARROW_DOWN = 80, DEL = 83, RESTART = 114};
 enum TempUnits {CEL, FARH, KEL};
 enum Buttons {CEL_BTN = 10, FARH_BTN = 15, KEL_BTN = 20, EDIT_INPUT = 27, EDIT_BTN = 66, DELETE_BTN = 70};
 
@@ -154,6 +154,14 @@ int main() {
                 float randomNumber = rand() % 1000;
                 printNumberInDisplay(displayPointer, randomNumber);
                 break;
+            case DEL:
+                for(i = 0; i < appendedElements; i++) {
+                    for(j = 0; j < HISTORY_WIDTH; j++) {
+                        tempHistory[i][j] = SPACE;
+                    }
+                }
+                appendedElements = 0;
+                break;
             case ARROW_UP:
                 if(consoleInfo.currentRow == 5) {
                     consoleInfo.currentRow = appendedElements + 5;
@@ -245,7 +253,6 @@ int main() {
                 break;
         }
         system("cls");
-
         setSign(displayPointer, consoleInfo.displaySign);
         consoleInfo.currentTempValue = getNumberFromDisplay(displayPointer);
         
@@ -290,6 +297,7 @@ void renderTemplate(char template[TEMPLATE_HEIGHT][TEMPLATE_WIDTH], char history
 
     int i, j;
     for(i = 0; i < TEMPLATE_HEIGHT; i++) {
+        printf("\t\t\t\t");
         for(j = 0; j < TEMPLATE_WIDTH; j++) {
             if(i == row && j == col) {
                 SetConsoleTextAttribute(hConsole, colour);
