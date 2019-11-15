@@ -213,6 +213,10 @@ int main() {
                 if(consoleInfo.currentRow == 5) {
                     initializeAppendableRow(historyUiTemplate, historyRowToAppend);
 
+                    if(consoleInfo.currentTempUnit == CEL && consoleInfo.currentTempValue < -273.15) consoleInfo.currentTempValue = -273.15;
+                    else if(consoleInfo.currentTempUnit == FARH && consoleInfo.currentTempValue < -459.67) consoleInfo.currentTempValue = -459.67;
+                    else if(consoleInfo.currentTempUnit == KEL && consoleInfo.currentTempValue < 0) consoleInfo.currentTempValue = 0;
+
                     if(consoleInfo.currentTempValue < 0) inputSign = MINUS_SIGN;
                     else inputSign = SPACE;
                     printNumberInDisplay(inputTempPointer, consoleInfo.currentTempValue);
