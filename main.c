@@ -235,7 +235,7 @@ int main() {
                         setSign(outputTempPointer, outputSign);
 
                         if(editedRow != -1) {
-                            for(i = editedRow - 1, j = 0; j < HISTORY_WIDTH; j++) tempHistory[i][j] = historyRowToAppend[0][j];
+                            for(i = editedRow, j = 0; j < HISTORY_WIDTH; j++) tempHistory[i][j] = historyRowToAppend[0][j];
                             editedRow = -1;
                         } else {
                             for(i = appendedElements, j = 0; j < HISTORY_WIDTH; j++) tempHistory[i][j] = historyRowToAppend[0][j];
@@ -244,7 +244,7 @@ int main() {
                     }
                 } else {
                     if(consoleInfo.Buttons == EDIT_BTN) {
-                        editedRow = consoleInfo.currentRow - 5;
+                        editedRow = consoleInfo.currentRow - 6;
                         consoleInfo.Buttons = CEL_BTN;
                         consoleInfo.currentRow = 5;
                     }
@@ -253,6 +253,11 @@ int main() {
                         deleteElementFromHistory(tempHistory, editedRow);
                         editedRow = -1;
                         appendedElements--;
+
+                        if(appendedElements == 0) {
+                            consoleInfo.currentRow = 5;
+                            consoleInfo.Buttons = CEL_BTN;
+                        }
                     };
                 }
                 break;
