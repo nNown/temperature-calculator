@@ -22,5 +22,7 @@ Zaimplementowane funkcje:
 - Wykonanie aktualnie podświetlonej funkcji pod przyciskiem: *spacja*.
 
 Program przelicza temperaturę w momencie wybrania innej jednostki, aby wybrać inną jednostkę bez wpisania liczby do historii należy najpierw zresetować wyświetlaną liczbę.
+
 *E* przenosi aktywny przycisk do wiersza z jednostkami temperatur, kolejna przeliczona temperatura zostanie zmieniona w wybranym wierszu historii.
+
 *D* usuwa wybrany wiersz z historii.
