@@ -162,6 +162,8 @@ int main() {
                     }
                 }
                 appendedElements = 0;
+                consoleInfo.currentRow = 5;
+                consoleInfo.Buttons = CEL_BTN;
                 break;
             case ARROW_UP:
                 if(appendedElements == 0) break;
