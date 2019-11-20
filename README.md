@@ -11,15 +11,18 @@ Sam program składa się z dwóch części:
 2. Wyświetlającej historię wprowadzonych wartości i przeliczonych jednostek.
 
 Zaimplementowane funkcje:
-- Restart wyświetlacza, pod przyciskiem: *r*.
-- Usunięcie historii temperatur pod przyciskiem: *delete*.
-- Zmiana aktualnego znaku liczby na przeciwny pod przyskiem: *-*.
-- Wstawienie kropki pod przyciskiem: *kropka*.
-- Wprowadzenie liczby pod przyciskami: *1-9*.
-- Usunięcie ostatniej liczby pod przyciskiem: *backspace*.
-- Wygenerowanie losowej liczby pod przyciskiem: *tab*.
-- Zmiana aktualnego przycisku przy użyciu: *strzałek*.
-- Wykonanie aktualnie podświetlonej funkcji pod przyciskiem: *spacja*.
+
+| Przycisk | Funkcja |
+| -------- | ------- |
+| r | Restart wyświetlacza |
+| delete  | Usunięcie całej historii temperatur |
+| - | Zmiana znaku aktualnie wprowadzonej wartości |
+| . | Wstawienie kropki |
+| 1 - 9 | Wprowadzenie liczby |
+| backspace | Usunięcie ostatniej liczby |
+| tab | Wygenerowanie losowej liczby w wyświetlaczu |
+| strzałki | Zmiana aktualnie używanej funkcji |
+| spacja | Wykonanie aktualnej funkcji |
 
 Program przelicza temperaturę w momencie wybrania innej jednostki, aby wybrać inną jednostkę bez wpisania liczby do historii należy najpierw zresetować wyświetlaną liczbę.
 
