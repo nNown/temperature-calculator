@@ -4,7 +4,7 @@
 Program kompiluje się tylko z użyciem kompilatora MinGW:
 > gcc main.c -o main
 
-Brakuje kompatybilności z Unixiem, program wykorzystuje bibliotekę windows.h do interakcji z konsolą.
+Brakuje kompatybilności z Unixem, program wykorzystuje bibliotekę windows.h do interakcji z konsolą.
 
 Sam program składa się z dwóch części:
 1. Wyświetlającej miejsce do wpisania liczby które przyjmuje pojedyncze litery i zamienia zawartość wyświetlanej tablicy na liczbę zmiennoprzecinkową.
