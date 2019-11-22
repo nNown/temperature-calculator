@@ -4,22 +4,24 @@
 Program kompiluje się tylko z użyciem kompilatora MinGW:
 > gcc main.c -o main
 
-Brakuje kompatybilności z Linuxem, program wykorzystuje bibliotekę windows.h do interakcji z konsolą.
+Brakuje kompatybilności z Unixiem, program wykorzystuje bibliotekę windows.h do interakcji z konsolą.
 
 Sam program składa się z dwóch części:
 1. Wyświetlającej miejsce do wpisania liczby które przyjmuje pojedyncze litery i zamienia zawartość wyświetlanej tablicy na liczbę zmiennoprzecinkową.
 2. Wyświetlającej historię wprowadzonych wartości i przeliczonych jednostek.
 
 Zaimplementowane funkcje:
-- Restart wyświetlacza, pod przyciskiem: *r*.
-- Usunięcie historii temperatur pod przyciskiem: *delete*.
-- Zmiana aktualnego znaku liczby na przeciwny pod przyskiem: *-*.
-- Wstawienie kropki pod przyciskiem: *kropka*.
-- Wprowadzenie liczby pod przyciskami: *1-9*.
-- Usunięcie ostatniej liczby pod przyciskiem: *backspace*.
-- Wygenerowanie losowej liczby pod przyciskiem: *tab*.
-- Zmiana aktualnego przycisku przy użyciu: *strzałek*.
-- Wykonanie aktualnie podświetlonej funkcji pod przyciskiem: *spacja*.
+
+| Przycisk | Funkcja |
+|----------|---------|
+| r | Restart wyświetlacza |
+| delete | Usunięcie historii temperatur |
+| . | Wstawienie kropki |
+| 1 - 9 | Wstawienie liczby |
+| backspace | Usunięcie ostatniej liczby |
+| tab | Wygenerowanie losowej liczby w wyświetlaczu |
+| strzałki | Sterowanie kursorem |
+| spacja | Wykonanie aktualnej funkcji |
 
 Program przelicza temperaturę w momencie wybrania innej jednostki, aby wybrać inną jednostkę bez wpisania liczby do historii należy najpierw zresetować wyświetlaną liczbę.
 
