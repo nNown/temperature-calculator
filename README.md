@@ -1,7 +1,7 @@
 # Projekt I na podstawy programowania
 ### Wojciech Marciniak, Bioinformatyka, I rok
 
-Program kompiluje się tylko z użyciem kompilatora MinGW:
+Program skompilowany przy użyciu kompilatora MinGW, nie testowałem kodu z innymi kompilatorami.
 > gcc main.c -o main
 
 Brakuje kompatybilności z Unixem, program wykorzystuje bibliotekę windows.h do interakcji z konsolą.
