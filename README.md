@@ -2,7 +2,7 @@
 ### Wojciech Marciniak, Bioinformatyka, I rok
 
 Program kompiluje się tylko z użyciem kompilatora MinGW:
-> gcc main.c -o main
+> gcc -o main main.c display.c tempFunctions.c
 
 Brakuje kompatybilności z Unixiem, program wykorzystuje bibliotekę windows.h do interakcji z konsolą.
 
