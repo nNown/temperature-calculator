@@ -1,7 +1,7 @@
 # Projekt I na podstawy programowania
 ### Wojciech Marciniak, Bioinformatyka, I rok
 
-Program skompilowany przy użyciu kompilatora MinGW, nie testowałem z innymi kompilatorami, na pewno nie będzie działał z żadnym kompilatorem C++ przez użycie słowa kluczowego template
+Program skompilowany przy użyciu kompilatora MinGW, nie testowałem z innymi kompilatorami, na pewno nie będzie działał z żadnym kompilatorem C++
 > gcc -o main main.c display.c tempFunctions.c
 
 Brakuje kompatybilności z Unixem, program wykorzystuje bibliotekę windows.h do interakcji z konsolą.
