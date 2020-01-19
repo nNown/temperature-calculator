@@ -1,5 +1,4 @@
 # Projekt I na podstawy programowania
-### Wojciech Marciniak, Bioinformatyka, I rok
 
 Program skompilowany przy użyciu kompilatora MinGW, nie testowałem z innymi kompilatorami, na pewno nie będzie działał z żadnym kompilatorem C++
 > gcc -o main main.c display.c tempFunctions.c
