@@ -1,29 +1,24 @@
-# Projekt I na podstawy programowania
+# Temeprature calculator
+Simple temperature converter
 
-Program skompilowany przy użyciu kompilatora MinGW, nie testowałem z innymi kompilatorami, na pewno nie będzie działał z żadnym kompilatorem C++
-> gcc -o main main.c display.c tempFunctions.c
+## Functionality
 
-Brakuje kompatybilności z Unixem, program wykorzystuje bibliotekę windows.h do interakcji z konsolą.
+| Button | Function |
+|--------|----------|
+| r | Clear input |
+| delete | Delete entries history |
+| . | Add decimal point |
+| 1 - 9 | Add number |
+| backspace | Delete last number |
+| tab | Generate random number |
+| arrows | Cursor control |
+| space | Execute currently marked function |
+| E | Jump to temperature unit |
+| D | Delete current entry in history |
 
-Sam program składa się z dwóch części:
-1. Wyświetlającej miejsce do wpisania liczby które przyjmuje pojedyncze litery i zamienia zawartość wyświetlanej tablicy na liczbę zmiennoprzecinkową.
-2. Wyświetlającej historię wprowadzonych wartości i przeliczonych jednostek.
+## Installation 
+Works only on windows
 
-Zaimplementowane funkcje:
-
-| Przycisk | Funkcja |
-|----------|---------|
-| r | Restart wyświetlacza |
-| delete | Usunięcie historii temperatur |
-| . | Wstawienie kropki |
-| 1 - 9 | Wstawienie liczby |
-| backspace | Usunięcie ostatniej liczby |
-| tab | Wygenerowanie losowej liczby w wyświetlaczu |
-| strzałki | Sterowanie kursorem |
-| spacja | Wykonanie aktualnej funkcji |
-
-Program przelicza temperaturę w momencie wybrania innej jednostki, aby wybrać inną jednostkę bez wpisania liczby do historii należy najpierw zresetować wyświetlaną liczbę.
-
-*E* przenosi aktywny przycisk do wiersza z jednostkami temperatur, kolejna przeliczona temperatura zostanie zmieniona w wybranym wierszu historii.
-
-*D* usuwa wybrany wiersz z historii.
+```bash
+gcc main.c display.c tempFunctions.c
+```
