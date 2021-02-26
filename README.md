@@ -5,16 +5,16 @@ Simple temperature converter
 
 | Button | Function |
 |--------|----------|
-| r | Clear input |
-| delete | Delete entries history |
-| . | Add decimal point |
-| 1 - 9 | Add number |
-| backspace | Delete last number |
-| tab | Generate random number |
+| r | Clears input |
+| delete | Deletes entries history |
+| . | Adds decimal point |
+| 1 - 9 | Adds number |
+| backspace | Deletes last number |
+| tab | Generates random number |
 | arrows | Cursor control |
-| space | Execute currently marked function |
-| E | Jump to temperature unit |
-| D | Delete current entry in history |
+| space | Executes currently marked function |
+| E | Jumps to temperature unit |
+| D | Deletes current entry in history |
 
 ## Installation 
 Works only on windows
